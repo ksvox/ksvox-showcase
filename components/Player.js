@@ -67,7 +67,7 @@ const Player = forwardRef(function Player({ song, hasPrev, hasNext, onPrev, onNe
     <div className="dock" role="region" aria-label="プレーヤー">
       <div className="dock-in">
         <div className={`screen ${big && song ? 'big' : ''}`}>
-          <div ref={box} />
+          <div className="yt"><div ref={box} /></div>
           {!song && <div className="screen-empty"><div className="record" /></div>}
           {song && !big && <div className={`record mini ${playing ? 'spin' : ''}`} aria-hidden="true" />}
         </div>

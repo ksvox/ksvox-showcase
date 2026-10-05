@@ -28,6 +28,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
   const [q, setQ] = useState('');
   const [centerSong, setCenterSong] = useState(null);
   const [found, setFound] = useState([]);
+  const [openId, setOpenId] = useState('');
   const [playlist, setPlaylist] = useState({ title: '', items: [] });
   const [coin, setCoin] = useState(false);
   const [queue, setQueue] = useState({ list: [], idx: -1 });
@@ -130,6 +131,10 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                   </button>
                 ))}
               </nav>
+              <div className="turntable" aria-hidden="true">
+                <div className={`big-record ${current ? 'fast' : ''}`}><span>K&apos;s VOX RECORD</span></div>
+                <div className="sheen" />
+              </div>
             </>
           )}
 
@@ -139,8 +144,8 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 <button className="chrome back" onClick={() => go('home')} aria-label="トップに戻る">←</button>
                 <h2 className="screen-title">曲名で探す</h2>
               </div>
-              <label className="sr-only" htmlFor="q">曲名または選曲番号</label>
-              <input id="q" className="search" placeholder="曲名・選曲番号(例:A12)で検索" value={q} onChange={(e) => setQ(e.target.value)} />
+              <label className="sr-only" htmlFor="q">曲名</label>
+              <input id="q" className="search" placeholder="曲名で検索する" value={q} onChange={(e) => setQ(e.target.value)} />
               {filtered.length ? (
                 <Drum items={filtered} onCenter={setCenterSong} onActivate={() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })} />
               ) : <p className="empty">「{q}」に合う曲はありません。別の言葉で探してみてください。</p>}
@@ -155,7 +160,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
           {screen === 'find' && (
             <section>
               <div className="screen-head"><h2 className="screen-title">どんな曲をお探し?</h2></div>
-              <Quiz questions={FIND_Q} onBack={() => go('home')} onDone={(a) => { setFound(findSongs(songs, a)); go('found'); }} />
+              <Quiz questions={FIND_Q} onBack={() => go('home')} onDone={(a) => { setFound(findSongs(songs, a)); setOpenId(''); go('found'); }} />
             </section>
           )}
 
@@ -171,10 +176,24 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                     <button className="btn-red" onClick={() => playFrom(found.map((x) => x.song), found[0].song)}>▶ 順に聴く</button>
                     <button className="chrome" onClick={() => go('find')}>質問をやり直す</button>
                   </div>
-                  {found.map(({ song, near }) => (
-                    <SongCard key={song.id} song={song} near={near} student={student} showService playing={current?.id === song.id}
-                      onPlay={(s) => playFrom(found.map((x) => x.song), s)} onLocked={locked} />
+                  {found.map(({ song, near }, i) => (
+                    <div key={song.id} className="found-item">
+                      <button className={`pl-row ${current?.id === song.id ? 'playing' : ''} ${openId === song.id ? 'open' : ''}`}
+                        aria-expanded={openId === song.id} onClick={() => setOpenId(openId === song.id ? '' : song.id)}>
+                        <span className="pl-idx">{i + 1}</span>
+                        <span className="pl-main">
+                          <b>{song.title}</b>
+                          <small>{near && <span className="flag near-mini">近い曲</span>} {song.no} / {songSub(song) || '—'}{song.tempo ? ` / ${song.tempo}` : ''}</small>
+                        </span>
+                        <span className="pl-open" aria-hidden="true">{openId === song.id ? '▲' : '▼'}</span>
+                      </button>
+                      {openId === song.id && (
+                        <SongCard song={song} near={near} student={student} showService playing={current?.id === song.id}
+                          onPlay={(s) => playFrom(found.map((x) => x.song), s)} onLocked={locked} />
+                      )}
+                    </div>
                   ))}
+                  <p className="note">曲名をタップすると、試聴や「いつものサービスで聴く」のボタンが開きます。</p>
                   {found.some((x) => x.near) && <p className="note">「近い曲」は、条件の一部が違うけれど雰囲気の近い曲です。</p>}
                 </>
               ) : <p className="empty">今はご案内できる曲がありません。</p>}
@@ -215,6 +234,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 <button className="btn-red" onClick={() => plSongs.length && playFrom(plSongs, plSongs.find((s) => s.youtubeId))}>▶ 全曲再生</button>
                 <button className="chrome" onClick={share}>プレイリストを持ち帰る</button>
               </div>
+              <p className="note take-note">「持ち帰る」を押すと、このプレイリスト専用のリンクができます。メモやLINEなどに保存しておけば、アプリを閉じても、あとでそのリンクを開くだけで同じ20曲を同じ曲順で聴けます。友だちに送ることもできます。</p>
               {playlist.items.map(({ song, kind }, i) => (
                 <button key={song.id} className={`pl-row ${current?.id === song.id ? 'playing' : ''}`} onClick={() => playFrom(plSongs, song)}>
                   <span className="pl-idx">{i + 1}</span>

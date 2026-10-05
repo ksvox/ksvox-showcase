@@ -28,7 +28,7 @@ export default function SongCard({ song, student, playing, onPlay, onLocked, sho
         </button>
         {s.hasPdf && (student
           ? <a className="chrome" href={`/api/lyrics?id=${encodeURIComponent(s.id)}`} download>歌詞をダウンロード</a>
-          : <button className="lock" onClick={onLocked}>🔒 歌詞PDF(門下生限定)</button>)}
+          : <button className="lock" onClick={onLocked}>🔒 歌詞は門下生限定</button>)}
         {showService && s.songUrl && (
           <a className="service" href={s.songUrl} target="_blank" rel="noopener noreferrer">いつものサービスで聴く</a>
         )}
