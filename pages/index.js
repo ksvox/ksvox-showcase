@@ -192,7 +192,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                   <button className="chrome slot" onClick={() => { setCoin('drop'); setTimeout(() => setCoin(true), 700); }} aria-label="コインを入れて始める">
                     <span className={`coin ${coin === 'drop' ? 'drop' : ''}`}>25¢</span>
                   </button>
-                  <p className="coin-help">スロットをタップしてコインを入れてください。3つの質問のあとに20曲を選曲します。</p>
+                  <p className="coin-help">スロットをタップしてコインを投入し、3つの質問のあとに20曲を選曲します。</p>
                 </div>
               ) : coin === 'drop' ? (
                 <div className="coin-stage"><div className="chrome slot"><span className="coin drop">25¢</span></div></div>
