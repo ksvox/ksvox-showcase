@@ -110,6 +110,10 @@ export default function Showcase({ songs, studentAtLoad, error }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta property="og:title" content="K's VOX RECORD Showcase" />
         <meta property="og:description" content="オリジナル英語曲を、気分や場面に合わせて選んで聴けるジュークボックス。" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://showcase.ksvox.net/" />
+        <meta property="og:image" content="https://showcase.ksvox.net/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
       <div className="page">
@@ -122,8 +126,8 @@ export default function Showcase({ songs, studentAtLoad, error }) {
               <nav className="entries" aria-label="探し方を選ぶ">
                 {[
                   ['A', 'search', '曲名で探す', '曲目表のドラムを回して選ぶ'],
-                  ['B', 'find', 'どんな曲をお探し?', '4つの質問から、好みに合う曲を'],
-                  ['C', 'coin', 'プレイリストを提案', '場面に合わせて20曲を選曲'],
+                  ['B', 'find', 'どんな曲をお探し?', '4つの質問から、好みに合う曲を選曲'],
+                  ['C', 'coin', 'プレイリストを提案してほしい！', '場面に合わせて20曲を選曲'],
                 ].map(([key, to, label, sub]) => (
                   <button key={key} className="entry" onClick={() => { setCoin(false); go(to); }}>
                     <span className="entry-key chrome">{key}</span>
@@ -234,7 +238,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 <button className="btn-red" onClick={() => plSongs.length && playFrom(plSongs, plSongs.find((s) => s.youtubeId))}>▶ 全曲再生</button>
                 <button className="chrome" onClick={share}>プレイリストを持ち帰る</button>
               </div>
-              <p className="note take-note">「持ち帰る」を押すと、このプレイリスト専用のリンクができます。メモやLINEなどに保存しておけば、アプリを閉じても、あとでそのリンクを開くだけで同じ20曲を同じ曲順で聴けます。友だちに送ることもできます。</p>
+              <p className="note take-note">※「持ち帰る」を押すと、このプレイリスト専用のリンクができます。アプリを閉じても、そのリンクを開くだけで同じ20曲を聴けます。友だちに送ることもできます。</p>
               {playlist.items.map(({ song, kind }, i) => (
                 <button key={song.id} className={`pl-row ${current?.id === song.id ? 'playing' : ''}`} onClick={() => playFrom(plSongs, song)}>
                   <span className="pl-idx">{i + 1}</span>
