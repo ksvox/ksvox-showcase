@@ -12,22 +12,38 @@ function Tube({ side }) {
   );
 }
 
-// アーチ窓の中のレコード(真ん中の1枚だけ正面、左右は縦に並ぶ)
+// アーチ窓の中のレコード(真ん中の1枚が、再生中はせり上がって回る。ラベルに曲名)
 const SIDE = [0, 1, 2, 3, 4, 5];
-function RecordWindow({ playing }) {
+function RecordWindow({ song, up, spin }) {
+  const label = song ? song.title : "K's VOX RECORD";
+  const text = `${label}  •  ${label}  •  `;
   return (
     <div className="rec-window" aria-hidden="true">
       <div className="rec-row">
         {SIDE.map((i) => <span key={`l${i}`} className="rec-edge" style={{ '--d': 6 - i }} />)}
-        <span className={`rec-face ${playing ? 'spin' : ''}`} />
+        <span className="rec-gap" />
         {SIDE.map((i) => <span key={`r${i}`} className="rec-edge" style={{ '--d': i + 1 }} />)}
+      </div>
+      <div className={`rec-main ${up ? 'up' : ''}`}>
+        <div className={`rec-disc ${spin ? 'spin' : ''}`}>
+          <svg viewBox="0 0 200 200" className="rec-label">
+            <defs><path id="rec-arc" d="M100,100 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" /></defs>
+            <circle cx="100" cy="100" r="52" fill="#b3172b" />
+            <circle cx="100" cy="100" r="52" fill="none" stroke="#7a0d1b" strokeWidth="2" />
+            <circle cx="100" cy="100" r="27" fill="none" stroke="#e7c06a" strokeWidth="1" opacity=".7" />
+            <text fontSize="11" fontWeight="700" fill="#fbf0d9" letterSpacing="0.5" fontFamily="'Archivo Narrow', sans-serif">
+              <textPath href="#rec-arc" textLength="236" lengthAdjust="spacingAndGlyphs">{text}</textPath>
+            </text>
+            <circle cx="100" cy="100" r="6" fill="#fbf0d9" /><circle cx="100" cy="100" r="3.5" fill="#1b1b1b" />
+          </svg>
+        </div>
       </div>
       <span className="rec-glass" />
     </div>
   );
 }
 
-export default function Cabinet({ student, playing, children }) {
+export default function Cabinet({ student, up, spin, song, children }) {
   return (
     <div className="cabinet">
       <div className="cabinet-inner">
@@ -50,7 +66,7 @@ export default function Cabinet({ student, playing, children }) {
         <Tube side="left" />
         <Tube side="right" />
         <header className="marquee">
-          <RecordWindow playing={playing} />
+          <RecordWindow song={song} up={up} spin={spin} />
           <h1 className="logo">K&apos;s VOX RECORD<span className="logo-sub">Showcase</span></h1>
           {student && <span className="student-badge">門下生モード</span>}
         </header>

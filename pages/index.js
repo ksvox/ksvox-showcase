@@ -64,19 +64,62 @@ export default function Showcase({ songs, studentAtLoad, error }) {
 
   function go(next) { setScreen(next); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-  // 再生(クリックの流れの中で直接呼ぶ)
+  // 再生の流れ:最初の1曲はすぐ。再生中に別の曲を選ぶと、レコードが下りて入れ替わってから次の曲へ
+  const [phase, setPhase] = useState('idle'); // idle=止まっている / up=レコードが上がって再生中 / changing=入れ替え中
+  const [ytPlaying, setYtPlaying] = useState(false);
+  const phaseRef = useRef('idle');
+  const queueRef = useRef({ list: [], idx: -1 });
+  const pendingRef = useRef(null);
+  const changeTimer = useRef(0);
+  const autoRef = useRef(false);
+  const SWAP_MS = 1400; // レコードが下りて上がるまで
+  function setP(p) { phaseRef.current = p; setPhase(p); }
+
+  function startNow(list, idx) {
+    clearTimeout(changeTimer.current);
+    pendingRef.current = null;
+    autoRef.current = false;
+    queueRef.current = { list, idx };
+    setQueue({ list, idx });
+    setP('up');
+    player.current?.play(list[idx]);
+  }
+  function scheduleSwap(list, idx, delay, toast) {
+    pendingRef.current = { list, idx };
+    if (phaseRef.current === 'changing') return; // 準備中に押された時は、最後に選んだ曲に差し替えるだけ
+    setP('changing');
+    if (toast) showToast('💿 次の曲を準備しています…');
+    changeTimer.current = setTimeout(() => { const p = pendingRef.current; if (p) startNow(p.list, p.idx); }, delay);
+  }
   function playFrom(list, song) {
     const playable = list.filter((s) => s.youtubeId);
     const idx = playable.findIndex((s) => s.id === song.id);
     if (idx < 0) return;
-    setQueue({ list: playable, idx });
-    player.current?.play(playable[idx]);
+    const cur = queueRef.current.list[queueRef.current.idx];
+    if (phaseRef.current === 'idle' || !cur) { startNow(playable, idx); return; }
+    if (cur.id === song.id && phaseRef.current === 'up') return; // 今かかっている曲
+    scheduleSwap(playable, idx, SWAP_MS, true);
   }
   function step(d) {
-    const idx = queue.idx + d;
-    if (idx < 0 || idx >= queue.list.length) return;
-    setQueue({ ...queue, idx });
-    player.current?.play(queue.list[idx]);
+    const { list, idx } = queueRef.current;
+    const n = idx + d;
+    if (n < 0 || n >= list.length) return;
+    scheduleSwap(list, n, SWAP_MS, true);
+  }
+  // 曲の残り5秒ほどで、音量を絞りながらレコードを下ろして次の曲へつなぐ
+  function onTick(cur, dur) {
+    const { list, idx } = queueRef.current;
+    if (phaseRef.current !== 'up' || autoRef.current || !dur || dur < 20) return;
+    if (idx + 1 >= list.length || dur - cur > 5) return;
+    autoRef.current = true;
+    player.current?.fadeOut(4200);
+    scheduleSwap(list, idx + 1, Math.max(0, (dur - cur - 0.6) * 1000), false);
+  }
+  function onEnded() {
+    const { list, idx } = queueRef.current;
+    if (pendingRef.current) { const p = pendingRef.current; startNow(p.list, p.idx); return; }
+    if (idx + 1 < list.length) { startNow(list, idx + 1); return; }
+    setP('idle');
   }
 
   const locked = () => showToast('歌詞PDFはボーカル道場 K\'s VOX の門下生限定です。', { href: SITE, label: 'K\'s VOXについて' });
@@ -118,7 +161,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
       </Head>
 
       <div className="page">
-        <Cabinet student={student} playing={!!current}>
+        <Cabinet student={student} up={phase === 'up'} spin={ytPlaying} song={phase === 'idle' ? null : current}>
           {error && <p className="empty">{error}</p>}
 
           {screen === 'home' && (
@@ -277,7 +320,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
       )}
 
       <Player ref={player} song={current} hasPrev={queue.idx > 0} hasNext={queue.idx >= 0 && queue.idx < queue.list.length - 1}
-        onPrev={() => step(-1)} onNext={() => step(1)} onEnded={() => step(1)} />
+        onPrev={() => step(-1)} onNext={() => step(1)} onEnded={onEnded} onState={setYtPlaying} onTick={onTick} />
     </>
   );
 }
