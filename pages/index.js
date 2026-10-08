@@ -118,13 +118,13 @@ export default function Showcase({ songs, studentAtLoad, error }) {
       </Head>
 
       <div className="page">
-        <Cabinet student={student}>
+        <Cabinet student={student} playing={!!current}>
           {error && <p className="empty">{error}</p>}
 
           {screen === 'home' && (
             <>
               <p className="count-plate">オリジナル英語曲 全{songs.length}曲を収録</p>
-              <nav className="entries" aria-label="探し方を選ぶ">
+              <nav className="entries panel" aria-label="探し方を選ぶ">
                 {[
                   ['A', 'search', '曲名で探す', '曲目表のドラムを回して選ぶ'],
                   ['B', 'find', 'どんな曲をお探し?', '4つの質問から、好みに合う曲を選曲'],
@@ -132,14 +132,10 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 ].map(([key, to, label, sub]) => (
                   <button key={key} className="entry" onClick={() => { setCoin(false); go(to); }}>
                     <span className="entry-key chrome">{key}</span>
-                    <span className="entry-label"><b>{label}</b><small>{sub}</small></span>
+                    <span className="entry-label"><b>{label}</b><small>{sub}</small><i className="rules" aria-hidden="true" /><span className="entry-knob chrome" aria-hidden="true" /></span>
                   </button>
                 ))}
               </nav>
-              <div className="turntable" aria-hidden="true">
-                <div className={`big-record ${current ? 'fast' : ''}`}><span>K&apos;s VOX RECORD</span></div>
-                <div className="sheen" />
-              </div>
             </>
           )}
 

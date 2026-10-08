@@ -283,3 +283,70 @@ a { color: inherit; }
 /* トップ下のバナー(横長3:1) */
 .ad-banner { display: block; margin: 20px auto 0; max-width: 520px; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 2px #6b4a3c, 0 8px 22px rgba(0,0,0,.5); }
 .ad-banner img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; }
+
+/* ===== 作り込み(2026-10) ===== */
+/* アーチ窓のレコード(タイトルネオンの奥) */
+.marquee { padding-top: 52px; min-height: 196px; }
+.rec-window {
+  position: absolute; left: 50%; top: 34px; width: 80%; height: 176px; transform: translateX(-50%);
+  border-radius: 50% 50% 10px 10px / 62% 62% 10px 10px; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 70%, #3b0d12 0%, #1a0507 70%);
+  box-shadow: inset 0 0 0 3px #c9ced6, inset 0 0 0 5px #5d6168, inset 0 14px 30px rgba(0,0,0,.85);
+}
+.rec-row { position: absolute; left: 0; right: 0; bottom: 12px; height: 124px; display: flex; align-items: center; justify-content: center; gap: 3px; filter: brightness(.78); }
+.rec-edge {
+  flex: none; width: 10px; height: calc(124px - var(--d) * 9px); border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, #c41f35 0 18%, #0c0c0c 19% 100%);
+  box-shadow: inset 2px 0 0 rgba(255,255,255,.12), inset -2px 0 0 rgba(0,0,0,.6);
+}
+.rec-face {
+  flex: none; width: 116px; height: 116px; margin: 0 4px; border-radius: 50%;
+  background: radial-gradient(circle, #1b1b1b 0 3px, #f2b531 4px 15px, #d89a1c 16px 17px, transparent 18px),
+              repeating-radial-gradient(circle, #121212 0 2px, #222 2px 4px);
+  box-shadow: 0 0 0 2px #2b2b2b, 0 6px 16px rgba(0,0,0,.7);
+}
+.rec-face.spin { animation: spin 1.9s linear infinite; }
+.rec-glass { position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.08) 42%, transparent 55%), linear-gradient(180deg, rgba(0,0,0,.45), transparent 45%); pointer-events: none; }
+.logo { position: relative; z-index: 1; }
+.student-badge { position: relative; z-index: 1; }
+
+/* 光る柱の電球 */
+.bulbs { position: absolute; left: 4px; right: 4px; top: 10px; bottom: 10px; background: radial-gradient(circle, #fff 0 2.2px, rgba(255,255,255,.4) 3px, transparent 4px) center top / 8px 34px repeat-y; filter: drop-shadow(0 0 3px #fff); }
+
+/* 選曲パネル */
+.panel { padding: 12px 10px; border-radius: 10px; background: #160909; box-shadow: inset 0 0 0 3px #c9ced6, inset 0 0 0 5px #5d6168, inset 0 8px 18px rgba(0,0,0,.8); }
+.entry-label { position: relative; }
+.entry-label .rules { display: block; height: 7px; margin-top: 6px; background: repeating-linear-gradient(180deg, #b9b2a4 0 1px, transparent 1px 3px); opacity: .6; }
+.entry-knob { position: absolute; right: 10px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; padding: 0; }
+.entry { position: relative; gap: 9px; }
+.entry .entry-key { width: 46px; height: 46px; font-size: 22px; }
+.entry-label { padding-right: 34px; }
+
+/* スピーカーグリル(縦のスリット) */
+.grille { height: 86px; margin: 16px -34px 0; border-top: 3px solid #c9ced6; background: linear-gradient(180deg, #2a0a0e, #1a0507); box-shadow: inset 0 8px 16px rgba(0,0,0,.5); display: grid; place-items: center; }
+.grille span { display: block; width: 62%; height: 58px; border-radius: 6px; background: repeating-linear-gradient(90deg, #070202 0 7px, transparent 7px 16px); box-shadow: 0 0 0 2px #6b6f76; }
+@media (max-width: 380px) { .grille { margin: 16px -28px 0; } .rec-window { width: 84%; } }
+.panel { padding: 10px 8px; }
+.entries.panel { gap: 10px; }
+.entry-label { padding: 9px 30px 8px 12px; }
+.entry-label b { font-size: 16px; }
+.entry-label small { font-size: 11.5px; }
+@media (max-width: 430px) {
+  .cabinet-inner { padding: 0 26px; }
+  .grille { margin: 16px -26px 0; }
+  .window { padding: 12px 8px 14px; }
+}
+/* スピーカーグリル(斜めの格子+奥の布張り) */
+.grille { height: 104px; }
+.grille span {
+  position: relative; width: 70%; height: 80px; border-radius: 40px 40px 8px 8px / 30px 30px 8px 8px;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 9px, #d9dde3 9px 11px, #8d929a 11px 12px, transparent 12px 21px),
+    repeating-linear-gradient(-45deg, transparent 0 9px, #d9dde3 9px 11px, #8d929a 11px 12px, transparent 12px 21px),
+    radial-gradient(ellipse at 50% 40%, #8a5a2a 0%, #4a2a12 55%, #1e0f06 100%);
+  box-shadow: 0 0 0 3px #c9ced6, 0 0 0 5px #5d6168, inset 0 6px 14px rgba(0,0,0,.7);
+}
+.grille span::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #c9ced6 45%, #7d828a); box-shadow: 0 2px 4px rgba(0,0,0,.6);
+}
