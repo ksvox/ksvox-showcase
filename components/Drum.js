@@ -19,10 +19,8 @@ export default function Drum({ items, onCenter, onActivate }) {
 
   // 位置を一気に移す時は、移動先の曲が描かれるまで吸着(スナップ)を止めておく
   function jump(el, top) {
-    el.style.scrollSnapType = 'none';
     el.scrollTop = top;
     setPos(top / ITEM);
-    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.scrollSnapType = ''; }));
   }
 
   // 曲が絞り込まれたら最初の曲を中央に
@@ -54,6 +52,8 @@ export default function Drum({ items, onCenter, onActivate }) {
     endTimer.current = setTimeout(() => {
       wrap(el);
       const k = Math.round(el.scrollTop / ITEM);
+      // 止まった位置を、いちばん近い曲の真ん中にそろえる
+      if (Math.abs(el.scrollTop - k * ITEM) > 1) { el.scrollTo({ top: k * ITEM, behavior: 'smooth' }); return; }
       setPos(el.scrollTop / ITEM);
       onCenter && onCenter(songAt(k));
     }, 140);

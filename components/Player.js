@@ -18,7 +18,7 @@ function loadApi() {
   return apiPromise;
 }
 
-const Player = forwardRef(function Player({ song, hasPrev, hasNext, onPrev, onNext, onEnded, onState, onTick }, ref) {
+const Player = forwardRef(function Player({ song, stopped, hasPrev, hasNext, onPrev, onNext, onEnded, onState, onTick, onStop, onResume }, ref) {
   const box = useRef(null);
   const yt = useRef(null);
   const ready = useRef(false);
@@ -81,32 +81,57 @@ const Player = forwardRef(function Player({ song, hasPrev, hasNext, onPrev, onNe
         if (r >= 1) clearInterval(fadeTimer.current);
       }, 100);
     },
+    stop() {
+      clearInterval(fadeTimer.current);
+      if (ready.current) { try { yt.current.stopVideo(); yt.current.setVolume(100); } catch (e) { /* noop */ } }
+    },
   }));
 
   function toggle() {
     if (!yt.current || !ready.current || !song) return;
+    if (stopped) { onResume && onResume(); return; }
     if (playing) yt.current.pauseVideo(); else yt.current.playVideo();
   }
+  const open = big && !!song;
 
   return (
     <div className="dock" role="region" aria-label="プレーヤー">
       <div className="dock-in">
-        <div className={`screen ${big && song ? 'big' : ''}`}>
+        <div className={`screen ${open ? 'big' : ''}`} onClick={() => song && !open && setBig(true)}>
           <div className="yt"><div ref={box} /></div>
           {!song && <div className="screen-empty"><div className="record" /></div>}
-          {song && !big && <div className={`record mini ${playing ? 'spin' : ''}`} aria-hidden="true" />}
+          {song && !open && <div className={`record mini ${playing ? 'spin' : ''}`} aria-hidden="true" />}
         </div>
-        <div className="np">
-          <b>{song ? `${song.no}  ${song.title}` : '曲を選んでください'}</b>
-          <small>{song ? songSub(song) : 'K\'s VOX RECORD のジュークボックス'}</small>
-          {song && <button className="tiny" onClick={() => setBig(!big)}>{big ? '画面を小さく' : '画面を大きく'}</button>}
-        </div>
+        <button className="np" onClick={() => song && setBig(true)} disabled={!song} aria-label="プレーヤーを開く">
+          <b>{song ? song.title : '曲を選んでください'}</b>
+          <small>{song ? (song.release || songSub(song)) : 'K\'s VOX RECORD のジュークボックス'}</small>
+          {song && <span className="tiny">▲ プレーヤーを開く</span>}
+        </button>
         <div className="ctrl">
           <button className="chrome" onClick={onPrev} disabled={!hasPrev} aria-label="前の曲">⏮</button>
           <button className="btn-red main" onClick={toggle} disabled={!song} aria-label={playing ? '一時停止' : '再生'}>{playing ? '❚❚' : '▶'}</button>
           <button className="chrome" onClick={onNext} disabled={!hasNext} aria-label="次の曲">⏭</button>
         </div>
       </div>
+
+      {/* 大きなプレーヤー(下からせり上がる) */}
+      <div className={`sheet-back ${open ? 'on' : ''}`} onClick={() => setBig(false)} aria-hidden="true" />
+      <section className={`sheet ${open ? 'on' : ''}`} aria-hidden={!open} aria-label="プレーヤー(大)">
+        <button className="sheet-close" onClick={() => setBig(false)} aria-label="プレーヤーを閉じる">▼</button>
+        <div className="sheet-jacket" />
+        {song && (
+          <div className="sheet-info">
+            <h2>{song.title}</h2>
+            {song.release && <p>{song.release}</p>}
+          </div>
+        )}
+        <div className="sheet-ctrl">
+          <button className="chrome" onClick={onPrev} disabled={!hasPrev} aria-label="前の曲">⏮</button>
+          <button className="chrome" onClick={onStop} disabled={!song || stopped} aria-label="停止">⏹</button>
+          <button className="btn-red main" onClick={toggle} disabled={!song} aria-label={playing ? '一時停止' : '再生'}>{playing ? '⏸' : '▶'}</button>
+          <button className="chrome" onClick={onNext} disabled={!hasNext} aria-label="次の曲">⏭</button>
+        </div>
+      </section>
     </div>
   );
 });

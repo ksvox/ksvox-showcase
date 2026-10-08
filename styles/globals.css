@@ -136,7 +136,7 @@ a { color: inherit; }
 .search { width: 100%; padding: 11px 14px; border-radius: 8px; border: 2px solid #c9ced6; background: var(--paper); color: var(--ink); font-size: 16px; font-weight: 700; }
 .search::placeholder { color: #a99a8c; font-weight: 500; }
 .drum-wrap { position: relative; margin: 12px 0 14px; border-radius: 10px; background: #0d0605; box-shadow: inset 0 0 0 2px #6b6f76, inset 0 10px 24px rgba(0,0,0,.9), inset 0 -10px 24px rgba(0,0,0,.9); }
-.drum { position: relative; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; perspective: 700px; }
+.drum { position: relative; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; perspective: 700px; }
 .drum::-webkit-scrollbar { display: none; }
 .drum-item {
   position: absolute; left: 10px; right: 10px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-radius: 4px;
@@ -364,3 +364,33 @@ a { color: inherit; }
 .rec-disc.spin { animation: spin 3.2s linear infinite; }
 .rec-label { width: 100%; height: 100%; display: block; }
 .rec-face { display: none; }
+
+/* ===== 大きなプレーヤー(下からせり上がる) ===== */
+.dock { --jw: min(84vw, 400px); --jh: calc(var(--jw) * 9 / 16); --sheet-h: calc(var(--jh) + 250px + env(safe-area-inset-bottom)); }
+.np { background: none; border: 0; padding: 0; text-align: left; color: inherit; }
+.np .tiny { display: inline-block; margin-top: 3px; font-size: 11px; color: var(--amber); }
+.screen { cursor: pointer; }
+.sheet-back { position: fixed; inset: 0; background: rgba(8,3,2,.6); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 1; }
+.sheet-back.on { opacity: 1; pointer-events: auto; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; height: var(--sheet-h); z-index: 2;
+  padding: 0 16px env(safe-area-inset-bottom); text-align: center;
+  background: linear-gradient(180deg, #3a1612, #1a0807 70%);
+  border-top: 3px solid #c9ced6; border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(0,0,0,.7);
+  transform: translateY(105%); transition: transform .38s cubic-bezier(.2,.8,.2,1);
+}
+.sheet.on { transform: translateY(0); }
+.sheet-close { display: block; margin: 0 auto; width: 64px; height: 34px; border: 0; background: none; color: #c8ab86; font-size: 16px; }
+.sheet-jacket { width: var(--jw); height: var(--jh); margin: 8px auto 0; }
+.screen.big {
+  position: fixed; left: 50%; transform: translateX(-50%); width: var(--jw); height: var(--jh); aspect-ratio: auto; z-index: 3;
+  bottom: calc(var(--sheet-h) - 42px - var(--jh)); border-radius: 12px; box-shadow: 0 0 0 3px #c9ced6, 0 14px 36px rgba(0,0,0,.75);
+  animation: jacketIn .45s ease both;
+}
+@keyframes jacketIn { from { opacity: 0; } 60% { opacity: 0; } to { opacity: 1; } }
+.sheet-info { margin: 16px auto 0; max-width: var(--jw); }
+.sheet-info h2 { margin: 0; font-family: 'Archivo Narrow', sans-serif; font-size: 24px; line-height: 1.15; color: #fff3dd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-info p { margin: 4px 0 0; font-size: 13px; color: #c8ab86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-ctrl { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+.sheet-ctrl button { width: 52px; height: 52px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 18px; }
+.sheet-ctrl .main { width: 68px; height: 68px; font-size: 24px; }

@@ -115,6 +115,14 @@ export default function Showcase({ songs, studentAtLoad, error }) {
     player.current?.fadeOut(4200);
     scheduleSwap(list, idx + 1, Math.max(0, (dur - cur - 0.6) * 1000), false);
   }
+  // ⏹ 停止:曲を止めてレコードを下ろす
+  function stopAll() {
+    clearTimeout(changeTimer.current);
+    pendingRef.current = null;
+    autoRef.current = false;
+    player.current?.stop();
+    setP('idle');
+  }
   function onEnded() {
     const { list, idx } = queueRef.current;
     if (pendingRef.current) { const p = pendingRef.current; startNow(p.list, p.idx); return; }
@@ -320,7 +328,8 @@ export default function Showcase({ songs, studentAtLoad, error }) {
       )}
 
       <Player ref={player} song={current} hasPrev={queue.idx > 0} hasNext={queue.idx >= 0 && queue.idx < queue.list.length - 1}
-        onPrev={() => step(-1)} onNext={() => step(1)} onEnded={onEnded} onState={setYtPlaying} onTick={onTick} />
+        onPrev={() => step(-1)} onNext={() => step(1)} onEnded={onEnded} onState={setYtPlaying} onTick={onTick}
+        stopped={phase === 'idle'} onStop={stopAll} onResume={() => { const { list, idx } = queueRef.current; if (list[idx]) startNow(list, idx); }} />
     </>
   );
 }
