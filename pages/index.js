@@ -6,6 +6,7 @@ import Drum from '../components/Drum';
 import SongCard, { songSub } from '../components/SongCard';
 import Quiz from '../components/Quiz';
 import Player from '../components/Player';
+import Banner from '../components/Banner';
 import { SOUNDS, VIBES, ANY, SCENES, findSongs, makePlaylist } from '../lib/select';
 import { FOLLOW, SNS, SITE } from '../lib/links';
 
@@ -268,6 +269,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
               {SNS.map((l) => <a key={l.name} className="plate" href={l.url} target="_blank" rel="noopener noreferrer">{l.name}</a>)}
             </div>
           </div>
+          {screen === 'home' && <Banner />}
           <p className="copy">© K&apos;s VOX RECORD ・ <a href={SITE} target="_blank" rel="noopener noreferrer">ksvox.net</a></p>
         </footer>
       </div>

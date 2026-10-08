@@ -279,3 +279,7 @@ a { color: inherit; }
 .pl-row.open { border-left-color: var(--strip-blue); }
 .pl-open { flex: none; width: 30px; text-align: center; color: var(--muted); font-size: 12px; }
 .flag.near-mini { background: #efe7d3; color: #7a5b22; padding: 0 5px; font-size: 10px; }
+
+/* トップ下のバナー(横長3:1) */
+.ad-banner { display: block; margin: 20px auto 0; max-width: 520px; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 2px #6b4a3c, 0 8px 22px rgba(0,0,0,.5); }
+.ad-banner img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; }
