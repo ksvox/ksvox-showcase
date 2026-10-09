@@ -7,7 +7,7 @@ import SongCard, { songSub } from '../components/SongCard';
 import Quiz from '../components/Quiz';
 import Player from '../components/Player';
 import Banner from '../components/Banner';
-import { SOUNDS, VIBES, ANY, SCENES, findSongs, makePlaylist } from '../lib/select';
+import { SOUNDS, VIBES, ANY, SCENES, findSongs, makePlaylist, shuffle } from '../lib/select';
 import { FOLLOW, SNS, SITE } from '../lib/links';
 
 const FIND_Q = [
@@ -20,6 +20,7 @@ const PL_Q = [
   { key: 'scene', text: 'どんな時に聴く?', options: Object.keys(SCENES) },
   { key: 'vocal', text: 'ボーカルは?', options: ['男性多め', '女性多め', ANY] },
   { key: 'style', text: '選曲スタイルは?', options: [{ key: '王道セレクト', desc: '場面にぴったりの曲を中心に' }, { key: '冒険セレクト', desc: '思いがけない曲も多めに' }] },
+  { key: 'count', text: '何曲にする?', options: ['10曲', '20曲', '30曲'] },
 ];
 
 export default function Showcase({ songs, studentAtLoad, error }) {
@@ -31,6 +32,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
   const [found, setFound] = useState([]);
   const [openId, setOpenId] = useState('');
   const [playlist, setPlaylist] = useState({ title: '', items: [] });
+  const [randomList, setRandomList] = useState([]);
   const [coin, setCoin] = useState(false);
   const [queue, setQueue] = useState({ list: [], idx: -1 });
   const [toast, setToast] = useState(null);
@@ -130,6 +132,15 @@ export default function Showcase({ songs, studentAtLoad, error }) {
     setP('idle');
   }
 
+  // D ランダム再生:全曲をシャッフルして、すぐにかける
+  function startRandom() {
+    const list = shuffle(songs.filter((s) => s.youtubeId));
+    if (!list.length) return;
+    setRandomList(list);
+    go('random');
+    playFrom(list, list[0]);
+  }
+
   const locked = () => showToast('歌詞PDFはボーカル道場 K\'s VOX の門下生限定です。', { href: SITE, label: 'K\'s VOXについて' });
 
   const filtered = useMemo(() => {
@@ -179,9 +190,10 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 {[
                   ['A', 'search', '曲名で探す', '曲目表のドラムを回して選ぶ'],
                   ['B', 'find', 'どんな曲をお探し?', '4つの質問から、好みに合う曲を選曲'],
-                  ['C', 'coin', 'プレイリストを提案してほしい！', '場面に合わせて20曲を選曲'],
+                  ['C', 'coin', 'プレイリストを提案してほしい！', '場面に合わせて10〜30曲を選曲'],
+                  ['D', 'random', 'ランダム再生', 'このアプリでランダムに曲を再生する'],
                 ].map(([key, to, label, sub]) => (
-                  <button key={key} className="entry" onClick={() => { setCoin(false); go(to); }}>
+                  <button key={key} className="entry" onClick={() => { setCoin(false); if (to === 'random') startRandom(); else go(to); }}>
                     <span className="entry-key chrome">{key}</span>
                     <span className="entry-label"><b>{label}</b><small>{sub}</small><i className="rules" aria-hidden="true" /><span className="entry-knob chrome" aria-hidden="true" /></span>
                   </button>
@@ -263,7 +275,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                   <button className="chrome slot" onClick={() => { setCoin('drop'); setTimeout(() => setCoin(true), 700); }} aria-label="コインを入れて始める">
                     <span className={`coin ${coin === 'drop' ? 'drop' : ''}`}>25¢</span>
                   </button>
-                  <p className="coin-help">スロットをタップしてコインを投入し、3つの質問のあとに20曲を選曲します。</p>
+                  <p className="coin-help">スロットをタップしてコインを投入し、4つの質問のあとに10〜30曲を選曲します。</p>
                 </div>
               ) : coin === 'drop' ? (
                 <div className="coin-stage"><div className="chrome slot"><span className="coin drop">25¢</span></div></div>
@@ -286,7 +298,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                 <button className="btn-red" onClick={() => plSongs.length && playFrom(plSongs, plSongs.find((s) => s.youtubeId))}>▶ 全曲再生</button>
                 <button className="chrome" onClick={share}>プレイリストを持ち帰る</button>
               </div>
-              <p className="note take-note">※「持ち帰る」を押すと、このプレイリスト専用のリンクができます。アプリを閉じても、そのリンクを開くだけで同じ20曲を聴けます。友だちに送ることもできます。</p>
+              <p className="note take-note">※「持ち帰る」を押すと、このプレイリスト専用のリンクができます。アプリを閉じても、そのリンクを開くだけで同じ{playlist.items.length}曲を聴けます。友だちに送ることもできます。</p>
               {playlist.items.map(({ song, kind }, i) => (
                 <button key={song.id} className={`pl-row ${current?.id === song.id ? 'playing' : ''}`} onClick={() => playFrom(plSongs, song)}>
                   <span className="pl-idx">{i + 1}</span>
@@ -301,6 +313,29 @@ export default function Showcase({ songs, studentAtLoad, error }) {
               <div style={{ textAlign: 'center', marginTop: 14 }}>
                 <button className="chrome" style={{ padding: '9px 18px', fontSize: 13, fontWeight: 700 }} onClick={() => { setCoin(false); go('coin'); }}>別のプレイリストを作る</button>
               </div>
+            </section>
+          )}
+
+          {screen === 'random' && (
+            <section>
+              <div className="screen-head">
+                <button className="chrome back" onClick={() => go('home')} aria-label="トップに戻る">←</button>
+                <h2 className="screen-title">ランダム再生</h2>
+              </div>
+              <div className="result-tools">
+                <button className="btn-red" onClick={startRandom}>🔀 シャッフルし直す</button>
+              </div>
+              <p className="note take-note">全{randomList.length}曲をシャッフルしてかけています。曲名をタップすると、その曲にとびます。</p>
+              {randomList.map((song, i) => (
+                <button key={song.id} className={`pl-row ${current?.id === song.id ? 'playing' : ''}`} onClick={() => playFrom(randomList, song)}>
+                  <span className="pl-idx">{i + 1}</span>
+                  <span className="pl-main">
+                    <b>{song.title}</b>
+                    <small>{song.no} / {songSub(song) || '—'}{song.tempo ? ` / ${song.tempo}` : ''}</small>
+                  </span>
+                  <span className="pl-play" aria-hidden="true">{current?.id === song.id ? '♪' : '▶'}</span>
+                </button>
+              ))}
             </section>
           )}
         </Cabinet>
