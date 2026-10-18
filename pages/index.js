@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Cabinet from '../components/Cabinet';
 import Drum from '../components/Drum';
 import SongCard, { songSub } from '../components/SongCard';
+import EpCard from '../components/EpCard';
 import Quiz from '../components/Quiz';
 import Player from '../components/Player';
 import Banner from '../components/Banner';
@@ -23,7 +24,7 @@ const PL_Q = [
   { key: 'count', text: '何曲にする?', options: ['10曲', '20曲', '30曲'] },
 ];
 
-export default function Showcase({ songs, studentAtLoad, error }) {
+export default function Showcase({ songs, eps = [], studentAtLoad, error }) {
   const router = useRouter();
   const [student, setStudent] = useState(studentAtLoad);
   const [screen, setScreen] = useState('home');
@@ -143,11 +144,27 @@ export default function Showcase({ songs, studentAtLoad, error }) {
 
   const locked = () => showToast('歌詞PDFはボーカル道場 K\'s VOX の門下生限定です。', { href: SITE, label: 'K\'s VOXについて' });
 
+  // EP(ドラムの前半)と曲(後半)
+  const epSongs = (ep) => ep.trackIds.map((id) => byId[id]).filter(Boolean);
+  const epBySong = useMemo(() => {
+    const m = {};
+    eps.forEach((ep) => ep.trackIds.forEach((id) => { if (!m[id]) m[id] = ep; }));
+    return m;
+  }, [eps]);
+  function playEp(ep) {
+    const list = epSongs(ep);
+    const first = list.find((s) => s.youtubeId);
+    if (first) playFrom(list, first);
+  }
+
   const filtered = useMemo(() => {
     const k = q.trim().toLowerCase();
-    if (!k) return songs;
-    return songs.filter((s) => s.title.toLowerCase().includes(k) || s.no.toLowerCase() === k || (s.release || '').toLowerCase().includes(k));
-  }, [songs, q]);
+    const all = [...eps, ...songs];
+    if (!k) return all;
+    return all.filter((s) => (s.kind === 'ep'
+      ? (s.title.toLowerCase().includes(k) || k === 'ep')
+      : (s.title.toLowerCase().includes(k) || s.no.toLowerCase() === k || (s.release || '').toLowerCase().includes(k))));
+  }, [eps, songs, q]);
 
   async function share() {
     const ids = playlist.items.map((x) => x.song.id).join('.');
@@ -188,7 +205,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
               <p className="count-plate">オリジナル英語曲 全{songs.length}曲を収録</p>
               <nav className="entries panel" aria-label="探し方を選ぶ">
                 {[
-                  ['A', 'search', '曲名で探す', '曲目表のドラムを回して選ぶ'],
+                  ['A', 'search', '曲名またはEPで探す', 'EPも曲も、ドラムを回して選ぶ'],
                   ['B', 'find', 'どんな曲をお探し?', '4つの質問から、好みに合う曲を選曲'],
                   ['C', 'coin', 'プレイリストを提案してほしい！', '場面に合わせて10〜30曲を選曲'],
                   ['D', 'random', 'ランダム再生', 'このアプリでランダムに曲を再生する'],
@@ -206,16 +223,18 @@ export default function Showcase({ songs, studentAtLoad, error }) {
             <section>
               <div className="screen-head">
                 <button className="chrome back" onClick={() => go('home')} aria-label="トップに戻る">←</button>
-                <h2 className="screen-title">曲名で探す</h2>
+                <h2 className="screen-title">曲名またはEPで探す</h2>
               </div>
-              <label className="sr-only" htmlFor="q">曲名</label>
-              <input id="q" className="search" placeholder="曲名で検索する" value={q} onChange={(e) => setQ(e.target.value)} />
+              <label className="sr-only" htmlFor="q">曲名またはEP名</label>
+              <input id="q" className="search" placeholder="曲名・EP名で検索する" value={q} onChange={(e) => setQ(e.target.value)} />
               {filtered.length ? (
                 <Drum items={filtered} onCenter={setCenterSong} onActivate={() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })} />
-              ) : <p className="empty">「{q}」に合う曲はありません。別の言葉で探してみてください。</p>}
+              ) : <p className="empty">「{q}」に合う曲やEPはありません。別の言葉で探してみてください。</p>}
               {filtered.length > 0 && centerSong && filtered.some((s) => s.id === centerSong.id) && (
                 <div ref={cardRef}>
-                  <SongCard song={centerSong} student={student} playing={current?.id === centerSong.id} onPlay={(s) => playFrom(filtered, s)} onLocked={locked} />
+                  {centerSong.kind === 'ep'
+                    ? <EpCard key={centerSong.id} ep={centerSong} songs={epSongs(centerSong)} student={student} current={current} onPlay={playFrom} />
+                    : <SongCard song={centerSong} student={student} playing={current?.id === centerSong.id} onPlay={(s) => playFrom(filtered, s)} onLocked={locked} ep={epBySong[centerSong.id]} onPlayEp={playEp} />}
                 </div>
               )}
             </section>
@@ -253,7 +272,7 @@ export default function Showcase({ songs, studentAtLoad, error }) {
                       </button>
                       {openId === song.id && (
                         <SongCard song={song} near={near} student={student} showService playing={current?.id === song.id}
-                          onPlay={(s) => playFrom(found.map((x) => x.song), s)} onLocked={locked} />
+                          onPlay={(s) => playFrom(found.map((x) => x.song), s)} onLocked={locked} ep={epBySong[song.id]} onPlayEp={playEp} />
                       )}
                     </div>
                   ))}
@@ -374,7 +393,9 @@ export async function getServerSideProps({ req, res }) {
   const { isStudent } = await import('../lib/student');
   res.setHeader('Cache-Control', 'private, no-store');
   try {
-    return { props: { songs: await getCatalog(), studentAtLoad: isStudent(req), error: '' } };
+    const { getEps } = await import('../lib/catalog');
+    const songs = await getCatalog();
+    return { props: { songs, eps: await getEps(), studentAtLoad: isStudent(req), error: '' } };
   } catch (e) {
     console.error(e);
     return { props: { songs: [], studentAtLoad: false, error: '曲の一覧を読み込めませんでした。時間をおいて開き直してください。' } };

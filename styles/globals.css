@@ -394,3 +394,31 @@ a { color: inherit; }
 .sheet-ctrl { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
 .sheet-ctrl button { width: 52px; height: 52px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 18px; }
 .sheet-ctrl .main { width: 68px; height: 68px; font-size: 24px; }
+
+/* ===== EPで探す ===== */
+/* ドラム:EPの帯(金色の紙+赤い「EP」) */
+.drum-item.ep { background: linear-gradient(180deg, #f8e3ad, #ecc971); border-top-color: #7a0d1b; border-bottom-color: #7a0d1b; }
+.drum-item.ep .no { color: #7a0d1b; font-weight: 700; letter-spacing: .08em; }
+.drum-item.ep.on { background: linear-gradient(180deg, #fff3cf, #f6dc93); }
+.drum-item.ep.on .no { color: #b3172b; }
+
+/* EPのカード */
+.ep-card .card-no { color: #7a0d1b; letter-spacing: .06em; }
+.ep-head { display: flex; gap: 12px; align-items: center; }
+.ep-jacket { flex: none; width: 112px; height: 112px; object-fit: cover; border-radius: 6px; background: #1d0f0d; box-shadow: 0 0 0 2px #d3c39c, 0 6px 14px rgba(0,0,0,.35); }
+.ep-jacket-empty { background: radial-gradient(circle, #b3172b 0 12%, #141414 13% 100%); }
+.ep-meta { min-width: 0; }
+.ep-meta .card-title { word-break: break-word; }
+.ep-theme { margin: 12px 0 0; font-size: 13px; line-height: 1.75; color: #4a3b33; }
+.ep-tracks { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px dashed #d3c39c; }
+.ep-tracks li { display: flex; align-items: stretch; border-bottom: 1px dashed #d3c39c; }
+.ep-track { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 4px; background: none; border: 0; text-align: left; color: var(--ink); }
+.ep-track:disabled { opacity: .5; }
+.ep-n { flex: none; width: 18px; text-align: right; font-family: 'Archivo Narrow', sans-serif; font-weight: 700; color: var(--muted); }
+.ep-t { flex: 1; min-width: 0; font-family: 'Archivo Narrow', sans-serif; font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-p { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--strip-red); color: #fff; font-size: 10px; }
+.ep-track.playing .ep-t { color: var(--strip-red); }
+.ep-lyr { flex: none; align-self: center; margin-left: 4px; padding: 5px 9px; border-radius: 6px; border: 1px solid #b9a78a; background: #f3ead6; color: #5a4a40; font-size: 11px; font-weight: 700; text-decoration: none; }
+
+/* 曲カードの「このEPを頭から聴く」 */
+.ep-link { display: block; width: 100%; margin-top: 10px; padding: 9px 10px; border-radius: 10px; border: 1px solid #b3172b; background: #fff; color: #7a0d1b; font-size: 13px; font-weight: 700; text-align: center; }

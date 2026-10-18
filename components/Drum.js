@@ -81,7 +81,7 @@ export default function Drum({ items, onCenter, onActivate }) {
         key={k}
         type="button"
         tabIndex={-1}
-        className={`drum-item ${k === center ? 'on' : ''}`}
+        className={`drum-item ${s.kind === 'ep' ? 'ep' : ''} ${k === center ? 'on' : ''}`}
         style={{ top: PAD + k * ITEM + 4, height: ITEM - 8, transform: `rotateX(${-d * 18}deg) scale(${1 - ad * 0.05})`, opacity: 1 - ad * 0.24 }}
         onClick={() => (k === center ? onActivate && onActivate(s) : goTo(k))}
       >
@@ -99,7 +99,7 @@ export default function Drum({ items, onCenter, onActivate }) {
         onScroll={onScroll}
         tabIndex={0}
         role="listbox"
-        aria-label="曲名の一覧(上下にスクロールして選ぶ)"
+        aria-label="曲名・EP名の一覧(上下にスクロールして選ぶ)"
         aria-activedescendant={undefined}
         onKeyDown={onKey}
       >

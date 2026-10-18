@@ -3,7 +3,7 @@ export function songSub(s) {
   return [s.vocal && `${s.vocal}ボーカル`, s.release].filter(Boolean).join(' / ');
 }
 
-export default function SongCard({ song, student, playing, onPlay, onLocked, showService, near }) {
+export default function SongCard({ song, student, playing, onPlay, onLocked, showService, near, ep, onPlayEp }) {
   const s = song;
   return (
     <article className={`card ${playing ? 'playing' : ''}`}>
@@ -33,6 +33,9 @@ export default function SongCard({ song, student, playing, onPlay, onLocked, sho
           <a className="service" href={s.songUrl} target="_blank" rel="noopener noreferrer">いつものサービスで聴く</a>
         )}
       </div>
+      {ep && onPlayEp && (
+        <button className="ep-link" onClick={() => onPlayEp(ep)}>💿 EP「{ep.title}」を頭から聴く</button>
+      )}
     </article>
   );
 }
